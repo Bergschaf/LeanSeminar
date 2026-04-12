@@ -118,9 +118,16 @@ example (a b c : ℝ) :
 -- !fragment
   exact mul_assoc b a c
 
+/-!hide-/
+section
+/-!end hide-/
+
 variable (a b c : ℝ)
 
 #check mul_assoc b a c
+/-!hide -/
+end
+/-!end hide-/
 ```
 
 # Facts from the local context
@@ -211,7 +218,14 @@ example (a b c d : ℝ) (hyp : c = d * a + b) (hyp' : b = a * d) :
 # Proving identities in algebraic Structures
 
 ```lean
+/- !hide -/
+section
+/- !end hide -/
 variable (M : Type*) [Monoid M]
+/- !hide -/
+end
+/- !end hide -/
+
 ```
 + `M` is an arbitrary Type
 + which has to have a `Monoid` instance... (What does this mean?)
@@ -219,6 +233,9 @@ variable (M : Type*) [Monoid M]
 # Typeclasses
 
 ```lean
+/- !hide -/
+section
+/- !end hide -/
 class MySemigroup (G : Type*) where
   mul : G → G → G
   mul_assoc (a b c : G) : mul (mul a b) c = mul a (mul b c)
@@ -233,6 +250,9 @@ instance : MySemigroup ℕ where
 -- !fragment
 
 -- #synth Ring ℝ
+/- !hide -/
+end
+/- !end hide -/
 ```
 
 + Typeclasses can give types additional Properties
@@ -241,7 +261,12 @@ instance : MySemigroup ℕ where
 
 # Ring Axioms
 
+TODO show screenshot of mathlib docs
 ```lean
+
+/- !hide -/
+section
+/- !end hide -/
 variable (R : Type*) [Ring R]
 
 #check @add_assoc R _
@@ -253,13 +278,22 @@ variable (R : Type*) [Ring R]
 #check @one_mul R _
 #check @mul_add R _
 #check @add_mul R _
+/- !hide -/
+end
+/- !end hide -/
 ```
 
 # Ring
 
 
 ```lean
+/- !hide -/
+section
+/- !end hide -/
 variable {R : Type*}[Ring R]
+/- !hide -/
+end
+/- !end hide -/
 ```
 + When we prove something about this arbitrary Ring `R`, it holds in any type with a `Ring` instance (for example `ℝ`, `ℚ` or `ℂ`)
 
@@ -269,6 +303,7 @@ TODO
 ```lean
 namespace MyRing
 
+variable {R : Type*}[Ring R]
 ```
 # Implicit Arugments
 
@@ -301,13 +336,18 @@ theorem mul_zero (a : R) : a * 0 = 0 := by
     rw [← mul_add, add_zero, add_zero]
 -- !fragment
   rw [add_left_cancel h]
+/- !hide -/
+end MyRing
+/- !end hide -/
 ```
 + The *`have`* Tactic introduces a new goal, which can be used as a local assumption later
 
 # Definitional Equality
 
-In every Ring, substraction is provably equal to the addition of the additive inverse:
+In every Ring, substraction is *provably equal* to the addition of the additive inverse:
 ```lean
+variable {R : Type*} [Ring R]
+
 example (a b : R) : a - b = a + -b :=
   sub_eq_add_neg a b
 ```
@@ -342,6 +382,7 @@ TODO warum?
 
 -- !fragment
 /- !hide -/
+section
 variable {α : Type*} [Preorder α] (a b c: α)
 /- !end hide -/
 variable (h : a ≤ b) (h' : b ≤ c)
@@ -349,6 +390,9 @@ variable (h : a ≤ b) (h' : b ≤ c)
 #check @le_trans α _
 #check le_trans h
 #check le_trans h h'
+/-!hide-/
+end
+/-!end hide-/
 ```
 
 # The `apply` tactic
