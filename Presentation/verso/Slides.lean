@@ -503,6 +503,8 @@ example (h : a ≤ b) : rexp a ≤ rexp b :=
   `https://loogle.lean-lang.org/`
 + use the `apply?`, `exact?`, `rw?` or `rw??` tactics
 
+# TODO Theorem finding Game
+
 
 # Min-Function on the Reals
 
@@ -589,3 +591,6 @@ example : min a b = min b a := by
   exact le_antisymm h h
 end
 ```
+
+
+
