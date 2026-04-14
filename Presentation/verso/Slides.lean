@@ -594,3 +594,93 @@ end
 
 
 
+# Divisibility Relation on ℕ
+
+```lean
+
+example {x y z : ℕ} (h₀ : x ∣ y) (h₁ : y ∣ z) : x ∣ z :=
+  dvd_trans h₀ h₁
+```
+
+- `x | y` states `y` is divisible by `x`
+- Type `\|` to get `∣` (not the same as `|`)
+- Refered to as `dvd` in theorem names
+
+# Divisibility Relation on ℕ
+
+- `gcd` and `lcm` are analogous to `min` and `max`
+TODO warum so rum??
+
+
+# Divisibility Relation on ℕ
+
+```lean
+example : Nat.gcd m n = Nat.gcd n m := by
+  sorry
+```
+- Try to guess the theorem name needed to prove this! (hint: similar to Partial Orders)
+
+
+# Divisibility Relation on ℕ
+
+```lean
+example : Nat.gcd m n = Nat.gcd n m := by
+  apply dvd_antisymm
+  · sorry -- exercise
+  · sorry -- exercise
+```
+- Try to guess the theorem name needed to prove this!
+
+# Partial Orders
+(another example of an algebraic structure axiomatized in Lean)
+
+- A possible (naive) way:
+```lean
+class MyPartialOrder (α : Type*) [LE α] where
+  le_refl (x : α) : x ≤ x
+  le_trans (x y z : α) : x ≤ y → y ≤ z → x ≤ z
+  le_antisymm (x y : α) : x ≤ y → y ≤ x → x = y
+```
+- Typeclass axioms do not have to be eqations
+
+# Partial Orders in Mathlib
+
+Docs:
+```
+class PartialOrder (α : Type u_2) extends Preorder α : Type u_2
+A partial order is a reflexive, transitive, antisymmetric relation ≤.
+    le : α → α → Prop
+    lt : α → α → Prop
+    le_refl (a : α) : a ≤ a
+    le_trans (a b c : α) : a ≤ b → b ≤ c → a ≤ c
+    lt_iff_le_not_ge (a b : α) : a < b ↔ a ≤ b ∧ ¬b ≤ a
+    le_antisymm (a b : α) : a ≤ b → b ≤ a → a = b
+
+Instances...
+```
+- Why is there a seperate field for `lt`?
+- It could be definied by `a < b ↔ a ≤ b ∧ ¬a = b`
+
+TODO sinnvoll??
+
+# Lattices
+
+```lean
+/- !hide -/
+section
+/- !end hide-/
+variable {α : Type*} [Lattice α]
+variable (x y z : α)
+#synth PartialOrder α
+#check x ⊓ y
+#check (inf_le_left : x ⊓ y ≤ x)
+#check (inf_le_right : x ⊓ y ≤ y)
+#check (le_inf : z ≤ x → z ≤ y → z ≤ x ⊓ y)
+#check x ⊔ y
+#check (le_sup_left : x ≤ x ⊔ y)
+#check (le_sup_right : y ≤ x ⊔ y)
+#check (sup_le : x ≤ z → y ≤ z → x ⊔ y ≤ z)
+/- !hide -/
+end
+/- !end hide -/
+```
