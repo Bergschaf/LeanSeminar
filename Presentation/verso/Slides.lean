@@ -12,7 +12,7 @@ transition := "slide"
 width := some 1920
 %%%
 
-# Welcome
+# Chapter 2
 
 This is a presentation built with
 [`verso-slides`](https://github.com/leanprover/verso-slides).
@@ -23,7 +23,7 @@ This is a presentation built with
   + `apply`-ing Theorems and Lemmas (and how to find them)
     TODO name guessing game
   + Proofs in Algebraic Structures
-  + Bonus: What happened? (What do `apply` and `rw` actually do?)
+-- + Bonus: What happened? (What do `apply` and `rw` actually do?)
   + Bonus: Tactics that make this (mostly) obsolete
 
 # First Goal
@@ -41,21 +41,25 @@ example (a b c : ℝ) :
 #check mul_comm
 ```
 
-:::fragment currentlyVisible
 `#check` command gives us the type of an expression
-:::
 
-:::fragment currentlyVisible
+# Theorems available to us:
+
+```lean
+#check mul_comm
+```
   - `u_1`: Universe metavariable: not important for know
   - `{G : Type}`: for any type `G`
   - `[CommMagma G]`: with a commutative operation `*` on `G`
   - `(a b : G)`: for any `a` and `b` of type `G`
   - `a * b = b * a` is true
-:::
 
-:::fragment currentlyVisible
+# Theorems available to us:
+
+```lean
+#check mul_comm
+```
 => For any type with a commutative operation  `*`, we know that `a * b = b * a` holds for any `a` and `b`.
-:::
 
 :::fragment currentlyVisible
 Curry Howard: `mul_comm` is a function that takes a type `G` with a commutative operation `*` and two variables `a` and `b` of type `G`as an input and returns a term of type `a * b = b * a`.
@@ -68,9 +72,7 @@ Curry Howard: `mul_comm` is a function that takes a type `G` with a commutative 
 #check mul_assoc
 ```
 
-:::fragment
 Multiplication in `ℝ` commutative and a semigroup, so the two theorems can be applied with `G := ℝ`.
-:::
 
 # Goal
 
@@ -105,8 +107,6 @@ example (a b c : ℝ) :
 -- !fragment
   rw [mul_assoc b a c]
 ```
-
-
 
 # Goal
 
@@ -245,11 +245,10 @@ instance : MySemigroup ℕ where
   mul a b := a * b
   mul_assoc a b c := by rw [mul_assoc]
 
---#synth MySemigroup ℕ
+#synth MySemigroup ℕ
 
 -- !fragment
-
--- #synth Ring ℝ
+#synth Ring ℝ
 /- !hide -/
 end
 /- !end hide -/
@@ -261,7 +260,6 @@ end
 
 # Ring Axioms
 
-TODO show screenshot of mathlib docs
 ```lean
 
 /- !hide -/
@@ -284,7 +282,6 @@ end
 ```
 
 # Ring
-
 
 ```lean
 /- !hide -/
@@ -325,7 +322,7 @@ variable (a b c : R) (h : a + b = a + c)
 + *Round Brackets* mark explicit arguments that have to be provided every time
 + `@` makes all arguments explicit
 
-# TODO
+# Introducing new goals
 We can use `add_left_cancel` to show that `a * 0 = 0` follows from the ring axioms:
 
 ```lean
@@ -371,8 +368,8 @@ example (a b : ℝ) : a - b = a + -b := by
 example : 3 + 4 = 7 := rfl
 
 example : 23 * 2 = 46 := rfl
+
 ```
-TODO warum?
 
 
 # Using Theorems and Lemmas
@@ -478,7 +475,6 @@ example (h : a ≤ b) : rexp a ≤ rexp b :=
 + `a - b ≤ c - d ↔ a + d ≤ c + b`
    `sub_le_sub_iff`
 
-
 # Guess the theorem
 
 ` (h₁ : a ≤ b) (h₂ : c ≤ d) : a + c ≤ b + d`
@@ -503,8 +499,22 @@ example (h : a ≤ b) : rexp a ≤ rexp b :=
   `https://loogle.lean-lang.org/`
 + use the `apply?`, `exact?`, `rw?` or `rw??` tactics
 
-# TODO Theorem finding Game
+# Try to find the following theorem in mathlib
 
+- group homomorphism `f : G → H`
+- `G/ker f` and `range f` are isomorphic
+
+:::fragment
+- Solution: `QuotientGroup.quotientKerEquivRange` (found using leansearch)
+:::
+
+# Try to find the following theorem in mathlib
+
+
+- group homomorphism is injective if and only if it has a trivial kernel
+:::fragment
+- Solution: `MonoidHom.ker_eq_bot_iff` (found using MathlibDocs)
+:::
 
 # Min-Function on the Reals
 
@@ -560,8 +570,9 @@ example : min a b = min b a := by
     apply min_le_left
 end
 ```
+:::fragment
 - This proof is redundant
-TODO clean up sections so that infoview is not cluttered up
+:::
 
 
 # Commutativitiy of Min-Function
@@ -608,18 +619,11 @@ example {x y z : ℕ} (h₀ : x ∣ y) (h₁ : y ∣ z) : x ∣ z :=
 
 # Divisibility Relation on ℕ
 
-- `gcd` and `lcm` are analogous to `min` and `max`
-TODO warum so rum??
-
-
-# Divisibility Relation on ℕ
-
 ```lean
 example : Nat.gcd m n = Nat.gcd n m := by
   sorry
 ```
 - Try to guess the theorem name needed to prove this! (hint: similar to Partial Orders)
-
 
 # Divisibility Relation on ℕ
 
@@ -629,7 +633,6 @@ example : Nat.gcd m n = Nat.gcd n m := by
   · sorry -- exercise
   · sorry -- exercise
 ```
-- Try to guess the theorem name needed to prove this!
 
 # Partial Orders
 (another example of an algebraic structure axiomatized in Lean)
@@ -660,8 +663,9 @@ Instances...
 ```
 - Why is there a seperate field for `lt`?
 - It could be definied by `a < b ↔ a ≤ b ∧ ¬a = b`
-
-TODO sinnvoll??
+:::fragment
+- Better definitional equalities (example: Lexicographical ordering)
+:::
 
 # Lattices
 
@@ -684,3 +688,59 @@ variable (x y z : α)
 end
 /- !end hide -/
 ```
+
+# Supremum and Infimum
+
+- `⊔` _(`\sup`)_ is called: supremum, join or least upper bound (lub)
+- `⊓` _(`\inf`)_ is called: infimum, meet or greatest lower bound (glb)
+
+# Instances of Lattices
+
+```lean
+#synth Lattice ℤ -- with `min` and `max`
+
+#synth Lattice (Set R) -- with ∪ and ∩
+-- Note that this instance is synthesized from a `CompleteLattice` instance.
+
+#synth Lattice Bool -- with ∧ and ∨
+
+variable {α : Type*} [TopologicalSpace α]
+#synth Lattice (TopologicalSpace.Opens α)
+
+```
+
+# Tipps for proofs in Lattices
+
+```lean
+variable {α : Type*} [Lattice α] (a b c : α)
+
+example : a ⊓ b = b ⊓ a := by
+  -- it is often easier to prove the two inequalities
+  apply le_antisymm
+  · sorry
+  · sorry
+
+example (h1 : a ≤ b) (h2 : b ≤ c) : a ≤ c := by
+  trans b -- introduces two new goals
+  · exact h1
+  · exact h2
+
+```
+
+# Useful Tactics
+You can get information on a tactic in the docstring (hovering in vscode).
++ `simp`: simplifies the goal using all lemmas that are tagged with `@[simp]`
++ `grind`: SMT-Solver, tries to close the goal from existing facts
++ `linarith`: proves linear (in)equalities from assumptions
++ `ring`: Tries to close the goal by using the axioms of a commutative ring
++ Many more in the *tactic-cheatsheet*
+
+# Questions?
+
+# Exercises!
+
+TODO sections and namespaces
+
+TODO einmal mit strg f nach todo suchen
+
+TODO vlt examples für die tactics
