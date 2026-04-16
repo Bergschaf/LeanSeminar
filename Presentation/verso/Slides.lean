@@ -709,7 +709,7 @@ variable {α : Type*} [TopologicalSpace α]
 
 ```
 
-# Tipps for proofs in Lattices
+# Tips for proofs in Lattices
 
 ```lean
 variable {α : Type*} [Lattice α] (a b c : α)
@@ -744,3 +744,4 @@ TODO sections and namespaces
 TODO einmal mit strg f nach todo suchen
 
 TODO vlt examples für die tactics
+TODO default value für lt := .... be Preorder in mathlib code zeigen
