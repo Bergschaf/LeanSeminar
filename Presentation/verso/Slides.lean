@@ -21,7 +21,6 @@ This is a presentation built with
   + Simple Proofs using `rw`
   + Identities in Algebraic Structures
   + `apply`-ing Theorems and Lemmas (and how to find them)
-    TODO name guessing game
   + Proofs in Algebraic Structures
 -- + Bonus: What happened? (What do `apply` and `rw` actually do?)
   + Bonus: Tactics that make this (mostly) obsolete
@@ -118,16 +117,16 @@ example (a b c : ℝ) :
 -- !fragment
   exact mul_assoc b a c
 
-/-!hide-/
+/- !hide-/
 section
-/-!end hide-/
+/- !end hide-/
 
 variable (a b c : ℝ)
 
 #check mul_assoc b a c
-/-!hide -/
+/- !hide -/
 end
-/-!end hide-/
+/- !end hide-/
 ```
 
 # Facts from the local context
@@ -371,6 +370,89 @@ example : 23 * 2 = 46 := rfl
 
 ```
 
+# Preorder
+
+Naive way:
+```lean
+namespace v1
+
+class MyPreorder (α : Type*) where
+  le : α → α → Prop
+  le_refl (a : α) : le a a
+  le_trans (a b c : α) : le a b → le b c → le a c
+
+end v1
+```
+:::fragment
+- Hard to read without the `≤` syntax
+:::
+
+# Preorder
+
+```lean
+/- !hide -/
+namespace myLe
+/- !end hide -/
+class MyLE (α : Type*) where
+  le : α → α → Prop
+
+scoped infixl:100 " ≤ " => MyLE.le
+
+class MyPreorder (α : Type*) extends MyLE α where
+  le_refl (a : α) : a ≤ a
+  le_trans (a b c : α) : a ≤ b → b ≤ c → a ≤ c
+
+instance (α β : Type*) [instPreorder : MyPreorder β] : MyPreorder (α → β) where
+  le f g := ∀ a : α, f a ≤ g a
+  le_refl f a := instPreorder.le_refl (f a)
+  le_trans f1 f2 f3 h1 h2 a := by
+    apply instPreorder.le_trans _ (f2 a) _
+    · apply h1
+    · exact h2 a
+/- !hide -/
+end myLe
+/- !end hide -/
+```
+
+
+
+
+# Preorder in Mathlib
+```
+class Preorder (α : Type u_2) extends LE α, LT α : Type u_2
+A preorder is a reflexive, transitive relation ≤....
+    le : α → α → Prop
+    lt : α → α → Prop
+    le_refl (a : α) : a ≤ a
+    le_trans (a b c : α) : a ≤ b → b ≤ c → a ≤ c
+    lt_iff_le_not_ge (a b : α) : a < b ↔ a ≤ b ∧ ¬b ≤ a
+Instances...
+```
+:::notes
+Who notices anything different from my previous definition?
+:::
+:::fragment
++ Why are there fields for `lt` and `lt_iff_le_not_ge` (They seem redundant)
+:::
+
+# Preorder in Mathlib
+```lean
+/--
+A preorder is a reflexive, transitive relation `≤`.
+In a preorder, `a < b` means `a ≤ b ∧ ¬b ≤ a`, and `<` is defined this way by default.
+You can override this definition to set a better def-eq.
+-/
+class Preorder' (α : Type*) extends LE α, LT α where
+  protected le_refl : ∀ a : α, a ≤ a
+  protected le_trans : ∀ a b c : α, a ≤ b → b ≤ c → a ≤ c
+  lt := fun a b => a ≤ b ∧ ¬b ≤ a
+  protected lt_iff_le_not_ge : ∀ a b : α, a < b ↔ a ≤ b ∧ ¬b ≤ a := by intros; rfl
+```
+:::fragment
++ `lt` and `lt_iff_le_not_ge` have default values
++ They can be overwritten for better definitional equalities (example: Lexicographical Ordering)
+:::
+
 
 # Using Theorems and Lemmas
 
@@ -387,9 +469,9 @@ variable (h : a ≤ b) (h' : b ≤ c)
 #check @le_trans α _
 #check le_trans h
 #check le_trans h h'
-/-!hide-/
+/- !hide-/
 end
-/-!end hide-/
+/- !end hide-/
 ```
 
 # The `apply` tactic
@@ -635,23 +717,12 @@ example : Nat.gcd m n = Nat.gcd n m := by
 ```
 
 # Partial Orders
-(another example of an algebraic structure axiomatized in Lean)
-
-- A possible (naive) way:
-```lean
-class MyPartialOrder (α : Type*) [LE α] where
-  le_refl (x : α) : x ≤ x
-  le_trans (x y z : α) : x ≤ y → y ≤ z → x ≤ z
-  le_antisymm (x y : α) : x ≤ y → y ≤ x → x = y
 ```
-- Typeclass axioms do not have to be eqations
+class PartialOrder (α : Type u_2) extends Preorder α :
+Type u_2
 
-# Partial Orders in Mathlib
-
-Docs:
-```
-class PartialOrder (α : Type u_2) extends Preorder α : Type u_2
 A partial order is a reflexive, transitive, antisymmetric relation ≤.
+
     le : α → α → Prop
     lt : α → α → Prop
     le_refl (a : α) : a ≤ a
@@ -661,11 +732,6 @@ A partial order is a reflexive, transitive, antisymmetric relation ≤.
 
 Instances...
 ```
-- Why is there a seperate field for `lt`?
-- It could be definied by `a < b ↔ a ≤ b ∧ ¬a = b`
-:::fragment
-- Better definitional equalities (example: Lexicographical ordering)
-:::
 
 # Lattices
 
