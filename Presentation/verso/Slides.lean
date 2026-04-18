@@ -22,8 +22,7 @@ This is a presentation built with
   + Identities in Algebraic Structures
   + `apply`-ing Theorems and Lemmas (and how to find them)
   + Proofs in Algebraic Structures
--- + Bonus: What happened? (What do `apply` and `rw` actually do?)
-  + Bonus: Tactics that make this (mostly) obsolete
+  + Bonus: Tactics that make this a lot easier
 
 # First Goal
 
@@ -61,7 +60,7 @@ example (a b c : ℝ) :
 => For any type with a commutative operation  `*`, we know that `a * b = b * a` holds for any `a` and `b`.
 
 :::fragment currentlyVisible
-Curry Howard: `mul_comm` is a function that takes a type `G` with a commutative operation `*` and two variables `a` and `b` of type `G`as an input and returns a term of type `a * b = b * a`.
+Curry Howard: `mul_comm` is a function that takes a type `G` with a commutative operation `*` and two variables `a` and `b` of type `G` as an input and returns a term of type `a * b = b * a`.
 :::
 
 # Theorems available to us:
@@ -254,8 +253,10 @@ end
 ```
 
 + Typeclasses can give types additional Properties
+:::fragment
 + `[Ring α]` ensures that `α` has an instance of `Ring`
 + `#synth Ring ℝ` can be used to check if a typeclass exists on a given type
+:::
 
 # Ring Axioms
 
@@ -270,6 +271,10 @@ variable (R : Type*) [Ring R]
 #check @add_comm R _
 #check @zero_add R _
 #check @neg_add_cancel R _
+```
+# Ring Axioms
+
+```lean
 #check @mul_assoc R _
 #check @mul_one R _
 #check @one_mul R _
@@ -323,6 +328,8 @@ namespace Test
 
 def hello := "Hello World"
 
+#eval hello
+
 end Test
 
 #eval Test.hello
@@ -355,14 +362,18 @@ theorem add_left_cancel {a b c : R} (h : a + b = a + c) : b = c := by sorry
 variable (a b c : R) (h : a + b = a + c)
 #check add_left_cancel' a b c h
 #check add_left_cancel h
---
+section
 -- !fragment
 #check @add_left_cancel
 #check @add_left_cancel R _ a b c h
+end
 ```
+:::fragment
 + *Curly Brackets* mark implicit arguments that can be determined from the context
 + *Round Brackets* mark explicit arguments that have to be provided every time
 + `@` makes all arguments explicit
+:::
+
 
 # Introducing new goals
 We can use `add_left_cancel` to show that `a * 0 = 0` follows from the ring axioms:
@@ -372,9 +383,12 @@ theorem mul_zero (a : R) : a * 0 = 0 := by
 -- !fragment
   have h : a * 0 + a * 0 = a * 0 + 0 := by
     -- !fragment
-    rw [← mul_add, add_zero, add_zero]
+    rw [← mul_add]
+    rw [add_zero, add_zero]
 -- !fragment
-  rw [add_left_cancel h]
+  have h1 := @add_left_cancel R _
+  exact add_left_cancel h
+
 /- !hide -/
 end MyRing
 /- !end hide -/
@@ -385,10 +399,16 @@ end MyRing
 
 In every Ring, substraction is *provably equal* to the addition of the additive inverse:
 ```lean
+/- !hide -/
+section
+/- !end hide -/
 variable {R : Type*} [Ring R]
 
 example (a b : R) : a - b = a + -b :=
   sub_eq_add_neg a b
+/- !hide -/
+end
+/- !end hide -/
 ```
 
 # Definitional Equality
@@ -410,6 +430,8 @@ example (a b : ℝ) : a - b = a + -b := by
 example : 3 + 4 = 7 := rfl
 
 example : 23 * 2 = 46 := rfl
+
+example : [1,2,3,4,5] = 1 :: [2,3] ++ [4,5] := rfl
 
 ```
 
@@ -501,20 +523,6 @@ class Preorder' (α : Type*) extends LE α, LT α where
 
 ```lean
 #check le_trans
-
--- !fragment
-/- !hide -/
-section
-variable {α : Type*} [Preorder α] (a b c: α)
-/- !end hide -/
-variable (h : a ≤ b) (h' : b ≤ c)
-
-#check @le_trans α _
-#check le_trans h
-#check le_trans h h'
-/- !hide-/
-end
-/- !end hide-/
 ```
 
 # The `apply` tactic
@@ -532,6 +540,17 @@ example (x y z : ℝ) (h₀ : x ≤ y) (h₁ : y ≤ z) : x ≤ z := by
 
 
 ```lean
+/- !hide -/
+section
+/- !end hide -/
+#check le_trans
+
+variable (x y z : ℝ) (h₀ : x ≤ y)
+
+#check le_trans h₀
+/- !hide -/
+end
+/- !end hide -/
 example (x y z : ℝ) (h₀ : x ≤ y) (h₁ : y ≤ z) : x ≤ z := by
   apply le_trans h₀
   apply h₁
@@ -563,6 +582,7 @@ example (x y z : ℝ) (h₀ : x ≤ y) (h₁ : y ≤ z) : x ≤ z :=
 ```lean
 /- !hide -/
 open Real
+section
 variable (a b : ℝ) (h : a ≤ b)
 /- !end hide -/
 example (h : a ≤ b) : rexp a ≤ rexp b := by
@@ -572,8 +592,6 @@ example (h : a ≤ b) : rexp a ≤ rexp b := by
 #check @exp_le_exp a b
 ```
 + `rw` can also rewrite along *bi-implications* (if-and-only-if)
-
-TODO irgendwo kurze zusammenfassung dazwischen
 
 # Bi-implications
 
@@ -585,20 +603,22 @@ Bi-implications can be used as normal implications by using `.mp` (modus ponens)
 example (h : a ≤ b) : rexp a ≤ rexp b :=
   exp_le_exp.mpr h
 
+/- !hide-/
+end
+/- !end hide -/
 ```
+:::fragment
 (This proof is only possible because we know `exp_le_exp` exists)
+:::
 
 # Strategies to find Mathlib Theorems
 
 + Guess the name (together with `ctrl + click`)
 
-
 # Examples of Mathlib Naming convention:
 
-+ `(a + b) * c = a * c + b * c`
-   `add_mul`
-+ `a - b ≤ c - d ↔ a + d ≤ c + b`
-   `sub_le_sub_iff`
++ `(a + b) * c = a * c + b * c`: *`add_mul`*
++ `a - b ≤ c - d ↔ a + d ≤ c + b`: *`sub_le_sub_iff`*
 
 # Guess the theorem
 
@@ -622,6 +642,7 @@ example (h : a ≤ b) : rexp a ≤ rexp b :=
   `https://leanprover-community.github.io/mathlib4_docs/Mathlib`
 + use *loogle*:
   `https://loogle.lean-lang.org/`
++ use *leansearch*: `https://leansearch.net/`
 + use the `apply?`, `exact?`, `rw?` or `rw??` tactics
 
 # Try to find the following theorem in mathlib
@@ -645,6 +666,7 @@ example (h : a ≤ b) : rexp a ≤ rexp b :=
 
 ```lean
 /- !hide -/
+section
 variable (a b c : ℝ)
 /- !end hide -/
 #check @min ℝ _
@@ -658,11 +680,11 @@ variable (a b c : ℝ)
 - A function that returns another function is effectively a function with two paramters (this is called _currying_ after Haskell Curry)
 :::
 
-:::fragment
+# Function application
+
 - Note: Function application binds tighter than many other operations:
 
 `min a b + c = (min a b) + c`
-:::
 
 # Min-Function on the Reals
 
@@ -670,6 +692,9 @@ variable (a b c : ℝ)
 #check (min_le_left a b : min a b ≤ a)
 #check (min_le_right a b : min a b ≤ b)
 #check (le_min : c ≤ a → c ≤ b → c ≤ min a b)
+/- !hide -/
+end
+/- !end hide-/
 ```
 :::fragment
 ```lean
@@ -681,8 +706,7 @@ variable (a b c : ℝ)
 # Commutativitiy of Min-Function
 
 ```lean
-section
-example : min a b = min b a := by
+example (a b : ℝ): min a b = min b a := by
 -- !fragment
   apply le_antisymm
 -- !fragment
@@ -693,7 +717,6 @@ example : min a b = min b a := by
   · apply le_min
     · apply min_le_right
     apply min_le_left
-end
 ```
 :::fragment
 - This proof is redundant
@@ -703,8 +726,7 @@ end
 # Commutativitiy of Min-Function
 
 ```lean
-section
-example : min a b = min b a := by
+example (a b : ℝ) : min a b = min b a := by
   have h (x y : ℝ) : min x y ≤ min y x := by
     apply le_min
     · apply min_le_right
@@ -712,23 +734,18 @@ example : min a b = min b a := by
   apply le_antisymm
   apply h
   apply h
-end
 ```
 
 # Commutativitiy of Min-Function
 
 ```lean
-section
-example : min a b = min b a := by
+example (a b : ℝ) : min a b = min b a := by
   have h {x y : ℝ} : min x y ≤ min y x := by
     apply le_min
     · apply min_le_right
     apply min_le_left
   exact le_antisymm h h
-end
 ```
-
-
 
 # Divisibility Relation on ℕ
 
@@ -789,6 +806,11 @@ variable (x y z : α)
 #check (inf_le_left : x ⊓ y ≤ x)
 #check (inf_le_right : x ⊓ y ≤ y)
 #check (le_inf : z ≤ x → z ≤ y → z ≤ x ⊓ y)
+```
+
+# Lattices
+
+```lean
 #check x ⊔ y
 #check (le_sup_left : x ≤ x ⊔ y)
 #check (le_sup_right : y ≤ x ⊔ y)
@@ -808,7 +830,7 @@ end
 ```lean
 #synth Lattice ℤ -- with `min` and `max`
 
-#synth Lattice (Set R) -- with ∪ and ∩
+#synth Lattice (Set ℝ) -- with ∪ and ∩
 -- Note that this instance is synthesized from a `CompleteLattice` instance.
 
 #synth Lattice Bool -- with ∧ and ∨
@@ -869,6 +891,14 @@ You can get information on a tactic in the docstring (hovering in vscode).
 
 # Exercises!
 
+# How I created this Presentation
+
+- Verso allows you to create documentation for lean in lean
+- verso-slides is based on verso and can create reveal-js presentations from lean-files (yes this presentation is one .lean file)
+
+# Thank you!
+
+# End
 
 TODO einmal mit strg f nach todo suchen
 
