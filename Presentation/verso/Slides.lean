@@ -295,12 +295,56 @@ end
 
 # Sections and Namespaces
 
-TODO
+```lean
+/- !hide -/
+section
+/- !end hide -/
+
+variable (x y : ℝ → Prop)
+
+section Test
+
+variable (a : ℝ) (h : a = 3.14)
+
+#where
+
+end Test
+
+#where
+
+/- !hide -/
+end
+/- !end hide -/
+```
+
+# Sections and Namespaces
+```lean
+namespace Test
+
+def hello := "Hello World"
+
+end Test
+
+#eval Test.hello
+
+/-- error: Unknown identifier `hello` -/
+#guard_msgs in
+#eval hello
+
+open Test
+
+#eval hello
+```
+
+# Ring
+
 ```lean
 namespace MyRing
 
 variable {R : Type*}[Ring R]
 ```
+- New namespace allows us to reprove mathlib theorems about Rings
+
 # Implicit Arugments
 
 ```lean -panel
@@ -315,7 +359,6 @@ variable (a b c : R) (h : a + b = a + c)
 -- !fragment
 #check @add_left_cancel
 #check @add_left_cancel R _ a b c h
-
 ```
 + *Curly Brackets* mark implicit arguments that can be determined from the context
 + *Round Brackets* mark explicit arguments that have to be provided every time
@@ -432,7 +475,7 @@ Instances...
 Who notices anything different from my previous definition?
 :::
 :::fragment
-+ Why are there fields for `lt` and `lt_iff_le_not_ge` (They seem redundant)
++ Why are there fields for `lt` and `lt_iff_le_not_ge`? (They seem redundant)
 :::
 
 # Preorder in Mathlib
@@ -793,6 +836,22 @@ example (h1 : a ≤ b) (h2 : b ≤ c) : a ≤ c := by
 
 ```
 
+# Summary
++ `rw [h] (at h1)` replaces an occurence of the left side of `h` with the right side of `h`
++ `apply h` matches the goal state with the statement of h and introduces missing assumpations as new goals
++ `exact h` tries to close the goal using `h`
++ `have h (a b : α) : .... := by` introduces a new goal that can later be reused
++ `section` and `namespace` can be used to limit the scope of variables and influence name resolutions
++ `#check` can be used to see the type of an expression
++ `#eval` can be used to evalute an expression
+
+# Useful Tactics
+
++ `exact?` searches for theorem to close the goal
++ `apply?` searches for theorem that matches the goal state
++ `rw?` searches for possible rewrites
++ `rw??` allows you to shift-click on a part of the theorem to rewrite
+
 # Useful Tactics
 You can get information on a tactic in the docstring (hovering in vscode).
 + `simp`: simplifies the goal using all lemmas that are tagged with `@[simp]`
@@ -801,13 +860,16 @@ You can get information on a tactic in the docstring (hovering in vscode).
 + `ring`: Tries to close the goal by using the axioms of a commutative ring
 + Many more in the *tactic-cheatsheet*
 
+# Useful Tactics
++ `simp?` shows what `simp` did
++ `grind?` shows what `grind` did
++ `try?` and `hint` try many tactics and give suggestions to close the goal
+
 # Questions?
 
 # Exercises!
 
-TODO sections and namespaces
 
 TODO einmal mit strg f nach todo suchen
 
 TODO vlt examples für die tactics
-TODO default value für lt := .... be Preorder in mathlib code zeigen
